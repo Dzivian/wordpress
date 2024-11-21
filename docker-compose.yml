@@ -45,6 +45,19 @@ services:
     networks:
       - app-network
 
+  redis:
+      image: redis:alpine
+      container_name: redis
+      restart: unless-stopped
+      env_file: .env
+      environment:
+        REDIS_PASSWORD: ${REDIS_PASSWORD}
+      ports:
+        - "6379:6379"
+      command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+      networks:
+        - app-network
+
 volumes:
   wordpress:
   dbdata:

@@ -15,7 +15,7 @@ services:
   wordpress:
     depends_on:
       - db
-    image: wordpress:5.1.1-fpm-alpine
+    image: custom-wordpress
     container_name: wordpress
     restart: unless-stopped
     env_file: .env

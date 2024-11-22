@@ -4,30 +4,21 @@ services:
     container_name: db
     restart: unless-stopped
     env_file: .env
-    environment:
-      MYSQL_DATABASE: wordpress
     volumes:
       - dbdata:/var/lib/mysql
-    command: '--default-authentication-plugin=mysql_native_password'
-    networks:
-      - app-network
 
   wordpress:
     depends_on:
       - db
+    build:
+      context: .
     image: custom-wordpress
     container_name: wordpress
     restart: unless-stopped
     env_file: .env
-    environment:
-      WORDPRESS_DB_HOST: db:3306
-      WORDPRESS_DB_USER: ${MYSQL_USER}
-      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
-      WORDPRESS_DB_NAME: wordpress
     volumes:
       - wordpress:/var/www/html
-    networks:
-      - app-network
+    #  - ./wp-config.php:/var/www/html/wp-config.php
 
   webserver:
     depends_on:
@@ -40,28 +31,14 @@ services:
     volumes:
       - wordpress:/var/www/html
       - ./nginx-conf:/etc/nginx/conf.d
-    env_file:
-      - .env
-    networks:
-      - app-network
 
   redis:
-      image: redis:alpine
-      container_name: redis
-      restart: unless-stopped
-      env_file: .env
-      environment:
-        REDIS_PASSWORD: ${REDIS_PASSWORD}
-      ports:
-        - "6379:6379"
-      command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
-      networks:
-        - app-network
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+    env_file: .env
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
 
 volumes:
   wordpress:
   dbdata:
-
-networks:
-  app-network:
-    driver: bridge
